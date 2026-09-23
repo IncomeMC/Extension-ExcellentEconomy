@@ -1,0 +1,9 @@
+name: Extension-ExcellentEconomy
+version: '1.0'
+main: net.incomemc.extension.excellenteconomy
+api-version: '1.21'
+authors: [ MatuMaKa ]
+description: ExcellentEconomy plugin DataExtension for Plan
+depend:
+  - Plan
+  - ExcellentEconomy
