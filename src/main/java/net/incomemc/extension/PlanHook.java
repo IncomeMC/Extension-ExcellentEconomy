@@ -15,7 +15,8 @@ public class PlanHook {
 
     private boolean areAllCapabilitiesAvailable() {
         CapabilityService capabilities = CapabilityService.getInstance();
-        return capabilities.hasCapability("DATA_EXTENSION_VALUES");
+        return capabilities.hasCapability("DATA_EXTENSION_TABLES")
+                && capabilities.hasCapability("DATA_EXTENSION_BUILDER_API");
     }
 
     private void registerDataExtension() {

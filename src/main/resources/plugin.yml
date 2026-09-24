@@ -1,5 +1,5 @@
 name: Extension-ExcellentEconomy
-version: '1.0'
+version: ${version}
 main: net.incomemc.extension.excellenteconomy
 api-version: '1.21'
 authors: [ MatuMaKa ]

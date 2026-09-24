@@ -2,8 +2,10 @@ package net.incomemc.extension;
 
 import com.djrapitops.plan.extension.DataExtension;
 import com.djrapitops.plan.extension.NotReadyException;
+import com.djrapitops.plan.extension.annotation.DataBuilderProvider;
 import com.djrapitops.plan.extension.annotation.PluginInfo;
 import com.djrapitops.plan.extension.annotation.TableProvider;
+import com.djrapitops.plan.extension.builder.ExtensionDataBuilder;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 import com.djrapitops.plan.extension.icon.Icon;
@@ -13,6 +15,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import su.nightexpress.excellenteconomy.api.ExcellentEconomyAPI;
 import su.nightexpress.excellenteconomy.api.currency.ExcellentCurrency;
 import su.nightexpress.excellenteconomy.tops.TopManager;
+
+import java.util.UUID;
 
 @PluginInfo(
         name = "ExcellentEconomy",
@@ -68,5 +72,25 @@ public class ExcellentEconomyExtension implements DataExtension {
         }
 
         return table.build();
+    }
+
+    @DataBuilderProvider
+    public ExtensionDataBuilder economy(UUID playerUUID) {
+        ExcellentEconomyAPI api = getAPI();
+        ExtensionDataBuilder builder = newExtensionDataBuilder();
+
+        for (ExcellentCurrency currency : api.getCurrencies()) {
+            String name = currency.getName();
+
+            builder.addValue(
+                    Double.class,
+                    builder.valueBuilder(name)
+                            .description("Player's " + name + " balance")
+                            .icon("coins", Family.SOLID, Color.GREEN)
+                            .showOnTab("Economy")
+                            .buildDouble(() -> api.getCachedUserData(playerUUID).get().getBalance(currency))
+            );
+        }
+        return builder;
     }
 }
