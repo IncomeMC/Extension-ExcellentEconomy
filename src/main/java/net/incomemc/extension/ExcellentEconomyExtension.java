@@ -1,10 +1,10 @@
 package net.incomemc.extension;
 
+import com.djrapitops.plan.extension.CallEvents;
 import com.djrapitops.plan.extension.DataExtension;
+import com.djrapitops.plan.extension.ElementOrder;
 import com.djrapitops.plan.extension.NotReadyException;
-import com.djrapitops.plan.extension.annotation.DataBuilderProvider;
-import com.djrapitops.plan.extension.annotation.PluginInfo;
-import com.djrapitops.plan.extension.annotation.TableProvider;
+import com.djrapitops.plan.extension.annotation.*;
 import com.djrapitops.plan.extension.builder.ExtensionDataBuilder;
 import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
@@ -24,6 +24,16 @@ import java.util.UUID;
         iconFamily = Family.SOLID,
         color = Color.GREEN
 )
+@TabInfo(
+        tab = "Economy",
+        iconName = "coins",
+        iconFamily = Family.SOLID,
+        elementOrder = {
+                ElementOrder.VALUES,
+                ElementOrder.TABLE
+        }
+)
+@TabOrder({"Economy"})
 public class ExcellentEconomyExtension implements DataExtension {
 
     public static ExcellentEconomyAPI getAPI() {
@@ -39,6 +49,14 @@ public class ExcellentEconomyExtension implements DataExtension {
 
     private TopManager getTopManager() {
         return getAPI().topManager().get();
+    }
+
+    public CallEvents[] callExtensionMethodsOn() {
+        return new CallEvents[]{
+                CallEvents.SERVER_EXTENSION_REGISTER,
+                CallEvents.SERVER_PERIODICAL,
+                CallEvents.PLAYER_PERIODICAL
+        };
     }
 
     private double getTotal(ExcellentCurrency currency) {
@@ -74,6 +92,7 @@ public class ExcellentEconomyExtension implements DataExtension {
         return table.build();
     }
 
+    @Tab("Economy")
     @DataBuilderProvider
     public ExtensionDataBuilder economy(UUID playerUUID) {
         ExcellentEconomyAPI api = getAPI();
