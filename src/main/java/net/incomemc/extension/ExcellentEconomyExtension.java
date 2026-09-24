@@ -1,9 +1,6 @@
 package net.incomemc.extension;
 
-import com.djrapitops.plan.extension.CallEvents;
-import com.djrapitops.plan.extension.DataExtension;
-import com.djrapitops.plan.extension.ElementOrder;
-import com.djrapitops.plan.extension.NotReadyException;
+import com.djrapitops.plan.extension.*;
 import com.djrapitops.plan.extension.annotation.*;
 import com.djrapitops.plan.extension.builder.ExtensionDataBuilder;
 import com.djrapitops.plan.extension.icon.Color;
@@ -16,6 +13,8 @@ import su.nightexpress.excellenteconomy.api.ExcellentEconomyAPI;
 import su.nightexpress.excellenteconomy.api.currency.ExcellentCurrency;
 import su.nightexpress.excellenteconomy.tops.TopManager;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.UUID;
 
 @PluginInfo(
@@ -24,6 +23,7 @@ import java.util.UUID;
         iconFamily = Family.SOLID,
         color = Color.GREEN
 )
+/*
 @TabInfo(
         tab = "Economy",
         iconName = "coins",
@@ -34,6 +34,7 @@ import java.util.UUID;
         }
 )
 @TabOrder({"Economy"})
+ */
 public class ExcellentEconomyExtension implements DataExtension {
 
     public static ExcellentEconomyAPI getAPI() {
@@ -55,7 +56,9 @@ public class ExcellentEconomyExtension implements DataExtension {
         return new CallEvents[]{
                 CallEvents.SERVER_EXTENSION_REGISTER,
                 CallEvents.SERVER_PERIODICAL,
-                CallEvents.PLAYER_PERIODICAL
+                CallEvents.PLAYER_PERIODICAL,
+                CallEvents.PLAYER_LEAVE,
+                CallEvents.PLAYER_JOIN
         };
     }
 
@@ -68,6 +71,17 @@ public class ExcellentEconomyExtension implements DataExtension {
         int entries = getTopManager().getTopEntries(currency).size();
 
         return entries == 0 ? 0 : total / entries;
+    }
+
+    private String formatBalance(double balance) {
+        NumberFormat format = NumberFormat.getCompactNumberInstance(
+                Locale.US,
+                NumberFormat.Style.SHORT
+        );
+
+        format.setMaximumFractionDigits(2);
+
+        return format.format(balance);
     }
 
     @TableProvider(
@@ -84,15 +98,14 @@ public class ExcellentEconomyExtension implements DataExtension {
         for (ExcellentCurrency currency : api.getCurrencies()) {
             table.addRow(
                     currency.getName(),
-                    String.valueOf(getTotal(currency)),
-                    String.valueOf(getAverage(currency))
+                    formatBalance(getTotal(currency)),
+                    formatBalance(getAverage(currency))
             );
         }
 
         return table.build();
     }
 
-    @Tab("Economy")
     @DataBuilderProvider
     public ExtensionDataBuilder economy(UUID playerUUID) {
         ExcellentEconomyAPI api = getAPI();
@@ -102,12 +115,11 @@ public class ExcellentEconomyExtension implements DataExtension {
             String name = currency.getName();
 
             builder.addValue(
-                    Double.class,
+                    String.class,
                     builder.valueBuilder(name)
                             .description("Player's " + name + " balance")
                             .icon("coins", Family.SOLID, Color.GREEN)
-                            .showOnTab("Economy")
-                            .buildDouble(() -> api.getCachedUserData(playerUUID).get().getBalance(currency))
+                            .buildString(() -> formatBalance(api.getCachedUserData(playerUUID).get().getBalance(currency)))
             );
         }
         return builder;
