@@ -66,6 +66,10 @@ public class ExcellentEconomyExtension implements DataExtension {
         return getTopManager().getTotalBalance(currency);
     }
 
+    private int getEntries(ExcellentCurrency currency) {
+        return getTopManager().getTopEntries(currency).size();
+    }
+
     private double getAverage(ExcellentCurrency currency) {
         double total = getTopManager().getTotalBalance(currency);
         int entries = getTopManager().getTopEntries(currency).size();
@@ -92,12 +96,14 @@ public class ExcellentEconomyExtension implements DataExtension {
 
         Table.Factory table = Table.builder()
                 .columnOne("Currency", Icon.called("coins").build())
-                .columnTwo("Total", Icon.called("wallet").build())
-                .columnThree("Average", Icon.called("calculator").build());
+                .columnTwo("Entries", Icon.called("person").build())
+                .columnThree("Total", Icon.called("wallet").build())
+                .columnFour("Average", Icon.called("calculator").build());
 
         for (ExcellentCurrency currency : api.getCurrencies()) {
             table.addRow(
                     currency.getName(),
+                    getEntries(currency),
                     formatBalance(getTotal(currency)),
                     formatBalance(getAverage(currency))
             );
